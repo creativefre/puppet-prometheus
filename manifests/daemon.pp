@@ -69,7 +69,7 @@ define prometheus::daemon (
   Hash[String, Scalar] $env_vars          = {},
   Optional[String] $env_file_path         = $prometheus::env_file_path,
   Optional[String[1]] $extract_command    = $prometheus::extract_command,
-  Stdlib::Absolutepath $archive_bin_path   = "/opt/${name}-${version}.${os}-${arch}/${name}",
+  Stdlib::Absolutepath $archive_bin_path   = "/opt/${name}-${version}.${os}-${arch}/${bin_name}",
   Boolean $export_scrape_job              = false,
   Stdlib::Host $scrape_host               = $facts['networking']['fqdn'],
   Optional[Stdlib::Port] $scrape_port     = undef,
@@ -87,11 +87,11 @@ define prometheus::daemon (
           group  => 0, # 0 instead of root because OS X uses "wheel".
           mode   => '0755',
         }
-        -> archive { "/opt/${name}-${version}.${os}-${arch}/${name}":
+        -> archive { "/opt/${name}-${version}.${os}-${arch}/${bin_name}":
           ensure          => present,
           source          => $real_download_url,
           checksum_verify => false,
-          before          => File["/opt/${name}-${version}.${os}-${arch}/${name}"],
+          before          => File["/opt/${name}-${version}.${os}-${arch}/${bin_name}"],
         }
       } else {
         archive { "/tmp/${name}-${version}.${download_extension}":
@@ -111,7 +111,7 @@ define prometheus::daemon (
         group => 0, # 0 instead of root because OS X uses "wheel".
         mode  => '0555',
       }
-      -> file { "${bin_dir}/${name}":
+      -> file { "${bin_dir}/${bin_name}":
         ensure => link,
         notify => $notify_service,
         target => $archive_bin_path,
